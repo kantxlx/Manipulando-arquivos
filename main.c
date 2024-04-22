@@ -44,10 +44,10 @@ void escreverDadosAlunoNoCSV(Aluno aluno, FILE *arquivo) {
 }
 
 int main() {
-    FILE *arquivoEntrada = fopen("C:\\Users\\caua8\\OneDrive\\Documentos\\codigos e projetos\\Algoritmos facul Noturn\\Trabalho estrutura de dados\\DadosEntrada.csv", "r");
-    FILE *arquivoSaida = fopen("SituacaoFinal.csv", "w");
+    FILE *arquivoEntrada = fopen("../dados_entrada.csv", "r");
+    FILE *arquivoSaida = fopen("../situacao_final.csv", "w");
 
-    if (arquivoEntrada == NULL || arquivoSaida == NULL) {
+    if (arquivoSaida == NULL) {
         printf("Erro ao abrir os arquivos.\n");
         exit(1);
     }
