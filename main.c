@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 typedef struct {
     char nome[50];
@@ -26,77 +25,42 @@ void imprimirDadosAluno(Aluno aluno) {
     printf("%s, %.2f, %s\n", aluno.nome, aluno.notaFinal, aluno.situacao);
 }
 
-void lerDadosAlunoDoTerminal(Aluno *aluno) {
-    printf("Digite o nome do aluno: ");
-    scanf("%s", aluno->nome);
-    printf("Digite o telefone do aluno: ");
-    scanf("%s", aluno->telefone);
-    printf("Digite o curso do aluno: ");
-    scanf("%s", aluno->curso);
+Aluno lerDadosAlunoDoCSV(FILE *arquivo) {
+    Aluno aluno;
+    char temp[200];
 
-    bool nota1_valida = false;
-    while (!nota1_valida) {
-        printf("Digite a primeira nota do aluno: ");
-        if (scanf("%lf", &aluno->nota1) == 1) {
-            nota1_valida = true;
-        } else {
-            printf("Entrada inválida. Por favor, insira um número.\n");
-            while (getchar() != '\n');
-        }
-    }
+    fgets(temp, sizeof(temp), arquivo);
+    sscanf(temp, "%[^,],%[^,],%[^,],%lf,%lf", aluno.nome, aluno.telefone, aluno.curso, &aluno.nota1, &aluno.nota2);
 
-    bool nota2_valida = false;
-    while (!nota2_valida) {
-        printf("Digite a segunda nota do aluno: ");
-        if (scanf("%lf", &aluno->nota2) == 1) {
-            nota2_valida = true;
-        } else {
-            printf("Entrada inválida. Por favor, insira um número.\n");
-            while (getchar() != '\n');
-        }
-    }
+    aluno.telefone[12] = '\0';
+
+    calcularNotaFinal(&aluno);
+
+    return aluno;
 }
 
 void escreverDadosAlunoNoCSV(Aluno aluno, FILE *arquivo) {
-    fprintf(arquivo, "%s,%s,%s,%.1f,%.1f\n", aluno.nome, aluno.telefone, aluno.curso, aluno.nota1, aluno.nota2);
+    fprintf(arquivo, "%s,%.2f,%s\n", aluno.nome, aluno.notaFinal, aluno.situacao);
 }
 
 int main() {
-    FILE *arquivoEntrada = fopen("../dados_entrada.csv", "w");
+    FILE *arquivoEntrada = fopen("C:\\Users\\caua8\\OneDrive\\Documentos\\codigos e projetos\\Algoritmos facul Noturn\\Trabalho estrutura de dados\\DadosEntrada.csv", "r");
+    FILE *arquivoSaida = fopen("C:\\Users\\caua8\\OneDrive\\Documentos\\codigos e projetos\\Algoritmos facul Noturn\\Trabalho estrutura de dados\\SituacaoFinal.csv", "w");
 
-    if (arquivoEntrada == NULL) {
-        printf("Erro ao abrir o arquivo de entrada.\n");
+    if (arquivoEntrada == NULL || arquivoSaida == NULL) {
+        printf("Erro ao abrir os arquivos.\n");
         exit(1);
     }
-
-    printf("Por favor, insira os dados dos alunos:\n");
 
     Aluno aluno;
-    char continuar;
-    do {
-        lerDadosAlunoDoTerminal(&aluno);
-        escreverDadosAlunoNoCSV(aluno, arquivoEntrada);
-
-        printf("Deseja adicionar outro aluno? (S/N): ");
-        scanf(" %c", &continuar);
-    } while (continuar == 'S' || continuar == 's');
-
-    fclose(arquivoEntrada);
-
-    arquivoEntrada = fopen("../dados_entrada.csv", "r");
-    if (arquivoEntrada == NULL) {
-        printf("Erro ao abrir o arquivo de entrada para leitura.\n");
-        exit(1);
-    }
-
-    printf("\nResultados:\n");
-    while (fscanf(arquivoEntrada, "%[^,],%[^,],%[^,],%lf,%lf\n", aluno.nome, aluno.telefone, aluno.curso, &aluno.nota1, &aluno.nota2) != EOF) {
+    while (fscanf(arquivoEntrada, "%[^,],%[^,],%[^,],%lf,%lf", aluno.nome, aluno.telefone, aluno.curso, &aluno.nota1, &aluno.nota2) != EOF) {
         calcularNotaFinal(&aluno);
         imprimirDadosAluno(aluno);
-        getchar();
+        escreverDadosAlunoNoCSV(aluno, arquivoSaida);
     }
 
     fclose(arquivoEntrada);
+    fclose(arquivoSaida);
 
     return 0;
 }
